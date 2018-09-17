@@ -4,4 +4,4 @@
 *.~
 hosts.ini
 ansible.log
-.envs
+.env
