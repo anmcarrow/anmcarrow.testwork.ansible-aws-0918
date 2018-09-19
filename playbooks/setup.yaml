@@ -13,7 +13,6 @@
     count: 1
     vpc_name: main
     vpc_key: main
-    vpc_id: vpc-354543
     vpc_dns_zone: ansible-vpc
     vpc_cidr_block: 10.0.0.0/16
     vpc_cidr: 10.0.1.0/24
@@ -50,6 +49,7 @@
       ec2_group:
         name: "{{ security_group }}"
         description: Security Group for webserver Servers
+        vpc_id: "{{ vpc_id }}"
         region: "{{ region }}"
         rules:
           - proto: tcp
