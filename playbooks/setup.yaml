@@ -7,10 +7,12 @@
   vars:
     security_group: test
     region:  us-east-1
+
     instance_type: t2.micro
     image: ami-00bbb68c7e6ca73ce
     keypair: main
-    count: 1
+    count: 2
+
     vpc_name: main
     vpc_key: main
     vpc_dns_zone: ansible-vpc
@@ -45,8 +47,32 @@
       register: create_vpc_subnet
       tags: vpc
 
-    - debug: var="create_vpc_subnet.subnet.id"
-      tags: debug
+
+    - name: Create Internet Gateway for VPC
+      ec2_vpc_igw:
+        vpc_id:           "{{ vpc_id }}"
+        region:           "{{ region }}"
+        state:            "present"
+      register: my_vpc_igw
+      tags: vpc,gw
+
+    - name:               Set Internet Gateway ID in variable
+      set_fact:
+        igw_id:           "{{ my_vpc_igw.gateway_id }}"
+      tags: vpc,gw
+
+    - name: Set up VPC subnet route table
+      ec2_vpc_route_table:
+        vpc_id:           "{{ vpc_id }}"
+        region:           "{{ region }}"
+        tags:
+          Name:           "Public"
+        subnets:
+          - "{{ create_vpc_subnet.subnet.id }}"
+        routes:
+          - dest:         "0.0.0.0/0"
+            gateway_id:   "{{ igw_id }}"
+      tags: vpc,gw
 
     - name: Create a security group
       ec2_group:
@@ -87,26 +113,30 @@
       register: ec2
       tags: launchvm
 
+#    - debug: var="ec2.instance_ids"
+#      tags: debug
 
-    - name: Add the newly created EC2 instance(s) to the local host group (located inside the directory)
-      lineinfile:
-        dest: "./hosts"
-        regexp: "{{ item.public_ip }}"
-        insertafter: "[webserver]"
-        line: "{{ item.public_ip }}"
-      with_items: "{{ ec2.instances }}"
-    - name: Wait for SSH to come up
-      wait_for:
-        host: "{{ item.public_ip }}"
-        port: 22
-        state: started
-      with_items: "{{ ec2.instances }}"
-    - name: Add tag to Instance(s)
-      ec2_tag:
-        resource: "{{ item.id }}"
-        region: "{{ region }}"
-        state: present
-      with_items: "{{ ec2.instances }}"
-      args:
-        tags:
-          Name: webserver
+#    - name: Add the EC2 instance(s) to the inventory
+#
+#      lineinfile:
+#        dest: "{{ inventory_file }}"
+#        regexp: "{{ item.public_ip }}"
+#        insertafter: "[webserver]"
+#        line: "{{ item.public_ip }}"
+#      with_items: "{{ ec2.instances }}"
+#    - name: Wait for SSH to come up
+#      wait_for:
+#        host: "{{ item.public_ip }}"
+#        port: 22
+#        state: started
+#      with_items: "{{ ec2.instances }}"
+#    - name: Add tag to Instance(s)
+#      ec2_tag:
+#        resource: "{{ item.id }}"
+#        region: "{{ region }}"
+#        state: present
+#      with_items: "{{ ec2.instances }}"
+#      args:
+#        tags:
+#          Name: webserver
+#

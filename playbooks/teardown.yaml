@@ -1,0 +1,84 @@
+---
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tags: setup
+  vars:
+    security_group: test
+    region:  us-east-1
+    instance_type: t2.micro
+    image: ami-00bbb68c7e6ca73ce
+    keypair: main
+    count: 1
+    vpc_name: main
+    vpc_key: main
+    vpc_dns_zone: ansible-vpc
+    vpc_cidr_block: 10.0.0.0/16
+    vpc_cidr: 10.0.1.0/24
+    vpc_az: "{{ region }}a"
+
+  tasks:
+
+    - name: Create default VPC
+      ec2_vpc_net:
+        name: "{{ vpc_name }}"
+        cidr_block: "{{ vpc_cidr_block }}"
+        region: "{{ region }}"
+      register: create_vpc
+      tags: vpc
+
+    - name: "Set fact: VPC ID"
+      set_fact:
+        vpc_id: "{{ create_vpc.vpc.id }}"
+      tags: vpc
+
+    - name: Сreate VPC subnet
+      ec2_vpc_subnet:
+        vpc_id: "{{ vpc_id }}"
+        cidr: "{{ vpc_cidr }}"
+        az: "{{ vpc_az }}"
+        region: "{{ region }}"
+        map_public: yes
+        tags:
+          Name: "{{ vpc_name }}"
+      register: create_vpc_subnet
+      tags: vpc
+
+    - debug: var="create_vpc_subnet.subnet.id"
+      tags: debug
+
+    - name: Create a security group
+      ec2_group:
+        name: "{{ security_group }}"
+        description: Security Group for webserver Servers
+        vpc_id: "{{ vpc_id }}"
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+      tags: security
+
+
+    - name: Gather EC2 facts
+      ec2_facts:
+
+    - debug: var=hostvars[inventory_hostname]
+    - debug: msg="{{ hostvars[inventory_hostname]['ec2_id'] }}"
+
+    - name: Terminate instances
+      local_action: ec2
+        state='absent'
+        instance_ids='{{ ec2_id }}'
+        region='{{ region }}'
+        wait=True
+      #with_items: hostvars[inventory_hostname]['ec2_id']
