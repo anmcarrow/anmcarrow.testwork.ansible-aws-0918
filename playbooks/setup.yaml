@@ -8,8 +8,8 @@
     security_group: test
     region:  us-east-1
     instance_type: t2.micro
-    image: ami-76144b0a
-    keypair: ansible
+    image: ami-00bbb68c7e6ca73ce
+    keypair: main
     count: 1
     vpc_name: main
     vpc_key: main
@@ -45,6 +45,9 @@
       register: create_vpc_subnet
       tags: vpc
 
+    - debug: var="create_vpc_subnet.subnet.id"
+      tags: debug
+
     - name: Create a security group
       ec2_group:
         name: "{{ security_group }}"
@@ -65,6 +68,12 @@
             cidr_ip: 0.0.0.0/0
       tags: security
 
+    - name: Create EC2 key pair from ~/.ssh/id_rsa.pub
+      ec2_key:
+        name: "{{ keypair }}"
+        key_material: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+      tags: keypair
+
     - name: Launch the new EC2 Instance
       ec2:
         group: "{{ security_group }}"
@@ -74,6 +83,7 @@
         region: "{{ region }}"
         keypair: "{{ keypair }}"
         count: "{{count}}"
+        vpc_subnet_id: "{{ create_vpc_subnet.subnet.id }}"
       register: ec2
       tags: launchvm
 
