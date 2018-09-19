@@ -1,0 +1,102 @@
+---
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tags: setup
+  vars:
+    security_group: test
+    region:  us-east-1
+    instance_type: t2.micro
+    image: ami-76144b0a
+    keypair: ansible
+    count: 1
+    vpc_name: main
+    vpc_key: main
+    vpc_id: vpc-354543
+    vpc_dns_zone: ansible-vpc
+    vpc_cidr_block: 10.0.0.0/16
+    vpc_cidr: 10.0.1.0/24
+    vpc_az: "{{ region }}a"
+
+  tasks:
+
+    - name: Create default VPC
+      ec2_vpc_net:
+        name: "{{ vpc_name }}"
+        cidr_block: "{{ vpc_cidr_block }}"
+        region: "{{ region }}"
+      register: create_vpc
+      tags: vpc
+
+    - name: "Set fact: VPC ID"
+      set_fact:
+        vpc_id: "{{ create_vpc.vpc.id }}"
+      tags: vpc
+
+    - name: Сreate VPC subnet
+      ec2_vpc_subnet:
+        vpc_id: "{{ vpc_id }}"
+        cidr: "{{ vpc_cidr }}"
+        az: "{{ vpc_az }}"
+        region: "{{ region }}"
+        map_public: yes
+        tags:
+          Name: "{{ vpc_name }}"
+      register: create_vpc_subnet
+      tags: vpc
+
+    - name: Create a security group
+      ec2_group:
+        name: "{{ security_group }}"
+        description: Security Group for webserver Servers
+        region: "{{ region }}"
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+        rules_egress:
+          - proto: all
+            cidr_ip: 0.0.0.0/0
+      tags: security
+
+    - name: Launch the new EC2 Instance
+      ec2:
+        group: "{{ security_group }}"
+        instance_type: "{{ instance_type}}"
+        image: "{{ image }}"
+        wait: true
+        region: "{{ region }}"
+        keypair: "{{ keypair }}"
+        count: "{{count}}"
+      register: ec2
+      tags: launchvm
+
+
+    - name: Add the newly created EC2 instance(s) to the local host group (located inside the directory)
+      lineinfile:
+        dest: "./hosts"
+        regexp: "{{ item.public_ip }}"
+        insertafter: "[webserver]"
+        line: "{{ item.public_ip }}"
+      with_items: "{{ ec2.instances }}"
+    - name: Wait for SSH to come up
+      wait_for:
+        host: "{{ item.public_ip }}"
+        port: 22
+        state: started
+      with_items: "{{ ec2.instances }}"
+    - name: Add tag to Instance(s)
+      ec2_tag:
+        resource: "{{ item.id }}"
+        region: "{{ region }}"
+        state: present
+      with_items: "{{ ec2.instances }}"
+      args:
+        tags:
+          Name: webserver
