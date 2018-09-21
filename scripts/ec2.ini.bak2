@@ -1,5 +1,5 @@
 [ec2]
-regions = us-east-2
+regions = us-east-1
 destination_variable = public_dns_name
 vpc_destination_variable = ip_address
 route53 = False

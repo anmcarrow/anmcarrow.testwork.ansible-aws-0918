@@ -1,0 +1,26 @@
+---
+
+region:  us-east-2
+instance_type: t2.micro
+image: ami-0b59bfac6be064b78
+keypair: "main-{{ region }}"
+count: 2
+vpc_name: main
+vpc_key: "main"
+vpc_dns_zone: ansible-vpc
+vpc_cidr_block: 10.0.0.0/16
+vpc_cidr: 10.0.1.0/24
+vpc_az: "{{ region }}a"
+security_group: test
+security_rules: 
+  - proto: tcp
+    from_port: 22
+    to_port: 22
+    cidr_ip: 0.0.0.0/0
+  - proto: tcp
+    from_port: 80
+    to_port: 80
+    cidr_ip: 0.0.0.0/0
+rules_egress:
+  - proto: all
+    cidr_ip: 0.0.0.0/0
