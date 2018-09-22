@@ -3,7 +3,7 @@
 # BACKEND SEETUP
 
 - hosts: tag_Name_backend
-  gather_facts: false
+  gather_facts: true
   become: yes
 
   roles:
@@ -13,7 +13,7 @@
 # FRONTEND SEETUP
 
 - hosts: tag_Name_fronted
-  gather_facts: false
+  gather_facts: true
   become: yes
 
   roles:

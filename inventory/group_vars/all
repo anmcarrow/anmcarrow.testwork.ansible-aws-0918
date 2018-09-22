@@ -1,10 +1,11 @@
 ---
 
-ansible_ssh_user: admin
+ansible_ssh_user: ec2-user
 
 region:  us-east-2
 instance_type: t2.micro
-image: ami-000a5904d50039ff8
+# image: ami-000a5904d50039ff8
+image: ami-03291866
 keypair: "main-{{ region }}"
 count: 1
 vpc_name: main
@@ -31,7 +32,12 @@ rules_egress:
   - proto: all
     cidr_ip: 0.0.0.0/0
 
-
+epel_rpm_uri: http://vault.centos.org/7.0.1406/extras/x86_64/Packages/epel-release-7-5.noarch.rpm
+remi_rpm_uri:  http://rpms.famillecollet.com/enterprise/remi-release-7.rpm
 
 dev_backend_port: 8081
 prod_backend_port: 8080
+
+backend_packages:
+  - httpd
+  - php56
