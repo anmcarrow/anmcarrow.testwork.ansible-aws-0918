@@ -1,5 +1,7 @@
 ---
 
+ansible_ssh_user: admin
+
 region:  us-east-2
 instance_type: t2.micro
 image: ami-000a5904d50039ff8
@@ -31,4 +33,5 @@ rules_egress:
 
 
 
-env_type: dev
+dev_backend_port: 8081
+prod_backend_port: 8080
