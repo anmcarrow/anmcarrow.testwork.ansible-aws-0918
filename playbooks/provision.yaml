@@ -20,9 +20,33 @@
 
 # FRONTEND SEETUP
 
-#- hosts: tag_Name_fronted
-#  gather_facts: true
-#  become: yes
-#
-#  roles:
-#    - frontend
+- hosts: tag_Name_fronted
+  gather_facts: true
+  become: yes
+
+  pre_tasks:
+    - name: Load main set of variables
+      include_vars:
+        file: "{{ playbook_dir }}/../vars/main.yaml"
+    - name: Load environment-specific set of variables
+      include_vars:
+        file: "{{ playbook_dir }}/../vars/{{ environment_target }}.yaml"
+
+  roles:
+    - frontend
+
+
+# FINAL CHECKS
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Get EC2 facts
+      ec2_instance_facts:
+      delegate_to: tag_Name_backend
+      tags: debug
+      
+    - debug: var="ec2_ip_address"
+      tags: debug

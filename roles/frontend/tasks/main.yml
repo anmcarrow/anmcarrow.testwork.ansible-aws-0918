@@ -2,30 +2,15 @@
 
 - name: Install required packages
   package:
-    name: "{{ backend_packages }}"
+    name: "{{ frontend_packages }}"
     state: latest
-
-- name: Deploy listened ports configuration
-  template:
-    src: apache-ports.conf.j2
-    dest: /etc/apache2/ports.conf
 
 - name: Deploy virtualhost configuraion
   template:
-    src: apache-default.conf.j2
-    dest: /etc/apache2/sites-available/000-default.conf
+    src: nginx-default.conf.j2
+    dest: /etc/nginx/sites-available/default
 
-- name: Deploy virtualhost env-marker file
-  template:
-    src: apache-marker.j2
-    dest: /var/www/html/env-marker.html
-
-- name: Apply backend configurations
+- name: Apply frontend configurations
   service:
-    name: apache2
+    name: nginx
     state: reloaded
-
-# - name: Deploy virtualhost configuration
-
-
-# - name: Deploy testfile

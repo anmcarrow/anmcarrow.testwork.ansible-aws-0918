@@ -39,3 +39,6 @@ environment_target: dev
 backend_packages:
   - apache2
   - libapache2-mod-php5
+
+frontend_packages:
+  - nginx-light
