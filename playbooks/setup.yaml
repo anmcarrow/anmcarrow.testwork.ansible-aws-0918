@@ -88,7 +88,7 @@
         region: "{{ region }}"
       tags: keypair
 
-    - name: Launch the new EC2 Instance(s)
+    - name: Launch the new EC2 Backend Instance
       ec2:
         group: "{{ security_group }}"
         instance_type: "{{ instance_type}}"
@@ -97,6 +97,23 @@
         region: "{{ region }}"
         keypair: "{{ keypair }}"
         count: "{{count}}"
+        instance_tags:
+               Name: backend
+        vpc_subnet_id: "{{ create_vpc_subnet.subnet.id }}"
+      register: ec2
+      tags: launchvm
+
+    - name: Launch the new EC2 Frontend Instance
+      ec2:
+        group: "{{ security_group }}"
+        instance_type: "{{ instance_type}}"
+        image: "{{ image }}"
+        wait: true
+        region: "{{ region }}"
+        keypair: "{{ keypair }}"
+        count: "{{count}}"
+        instance_tags:
+               Name: frontend
         vpc_subnet_id: "{{ create_vpc_subnet.subnet.id }}"
       register: ec2
       tags: launchvm
