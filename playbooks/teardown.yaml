@@ -2,14 +2,16 @@
 
 # EC2 TEARDOWN
 
-- hosts: localhost
+- hosts: ec2
   connection: local
   gather_facts: false
-
   tasks:
+
     - name: Get EC2 facts
       ec2_instance_facts:
       tags: ec2
+
+    - debug: var="ec2_id"
 
     - name: Terminate all EC2 instances
       ec2:
@@ -21,6 +23,11 @@
       when: ec2_id is defined
 
 # NETWORK TEARDOWN
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
 
     - name: Get VPC IDS
       ec2_vpc_net_facts:

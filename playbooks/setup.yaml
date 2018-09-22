@@ -6,6 +6,8 @@
 
   tasks:
 
+# NETWORK SETUP
+
     - name: Create default VPC
       ec2_vpc_net:
         name: "{{ vpc_name }}"
@@ -77,6 +79,8 @@
 #            cidr_ip: 0.0.0.0/0
       tags: security
 
+# EC2 SETUP
+
     - name: Create EC2 key pair from ~/.ssh/id_rsa.pub
       ec2_key:
         name: "{{ keypair }}"
@@ -84,7 +88,7 @@
         region: "{{ region }}"
       tags: keypair
 
-    - name: Launch the new EC2 Instance
+    - name: Launch the new EC2 Instance(s)
       ec2:
         group: "{{ security_group }}"
         instance_type: "{{ instance_type}}"
