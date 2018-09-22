@@ -1,18 +1,9 @@
 ---
 
-- name: Install required additional repos
-  yum:
-    name: "{{ item }}"
-    state: latest
-  with_items:
-    - "{{ epel_rpm_uri }}"
-    - "{{ remi_rpm_uri }}"
-
 - name: Install required packages
   package:
     name: "{{ backend_packages }}"
     state: latest
-
 
 # - name: Deploy virtualhost configuration
 

@@ -1,11 +1,13 @@
 ---
 
-ansible_ssh_user: ec2-user
+#ansible_ssh_user: ec2-user
+ansible_ssh_user: admin
 
 region:  us-east-2
 instance_type: t2.micro
 # image: ami-000a5904d50039ff8
-image: ami-03291866
+# image: ami-03291866
+image: ami-0e79236b
 keypair: "main-{{ region }}"
 count: 1
 vpc_name: main
@@ -39,5 +41,5 @@ dev_backend_port: 8081
 prod_backend_port: 8080
 
 backend_packages:
-  - httpd
-  - php56
+  - apache2
+  - libapache2-mod-php5
