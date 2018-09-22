@@ -7,7 +7,11 @@
   gather_facts: false
   tasks:
 
+    - name: Load main set of variables
+      include_vars:
+        file: "{{ playbook_dir }}/../vars/main.yaml"
     - name: Get EC2 facts
+
       ec2_instance_facts:
       tags: ec2
 
@@ -28,6 +32,10 @@
   connection: local
   gather_facts: false
   tasks:
+
+    - name: Load main set of variables
+      include_vars:
+        file: "{{ playbook_dir }}/../vars/main.yaml"
 
     - name: Get VPC IDS
       ec2_vpc_net_facts:

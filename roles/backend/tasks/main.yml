@@ -5,6 +5,26 @@
     name: "{{ backend_packages }}"
     state: latest
 
+- name: Deploy listened ports configuration
+  template:
+    src: apache-ports.conf.j2
+    dest: /etc/apache2/ports.conf
+
+- name: Deploy virtualhost configuraion
+  template:
+    src: apache-default.conf.j2
+    dest: /etc/apache2/sites-available/000-default.conf
+
+- name: Deploy virtualhost env-marker file
+  template:
+    src: apache-marker.j2
+    dest: /var/www/html/env-marker.html
+
+- name: Apply backend configurations
+  service:
+    name: apache2
+    state: reloaded
+
 # - name: Deploy virtualhost configuration
 
 
