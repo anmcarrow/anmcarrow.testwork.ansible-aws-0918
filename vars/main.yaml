@@ -13,9 +13,15 @@ count: 1
 vpc_name: main
 vpc_key: "main"
 vpc_dns_zone: ansible-vpc
-vpc_cidr_block: 10.0.0.0/16
-vpc_cidr: 10.0.1.0/24
+vpc_cidr_base: 10.0.1
+# vpc_cidr_block: "{{ vpc_cidr_base }}.0/16"
+vpc_cidr_block: "10.0.1.0/16"
+vpc_cidr: "{{ vpc_cidr_base }}.0/24"
 vpc_az: "{{ region }}a"
+
+backend_ip: "{{ vpc_cidr_base }}.27"
+frontend_ip: "{{ vpc_cidr_base }}.28"
+
 security_group: test
 security_rules:
   - proto: tcp

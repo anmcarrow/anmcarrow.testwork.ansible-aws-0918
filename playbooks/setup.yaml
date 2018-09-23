@@ -3,12 +3,11 @@
 - hosts: localhost
   connection: local
   gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../vars/main.yaml"
+    - "{{ playbook_dir }}/../vars/{{ environment_target }}.yaml"
 
   tasks:
-
-    - name: Load main set of variables
-      include_vars:
-        file: "{{ playbook_dir }}/../vars/main.yaml"
 
 # NETWORK SETUP
 
@@ -70,17 +69,6 @@
         vpc_id: "{{ vpc_id }}"
         region: "{{ region }}"
         rules: "{{ security_rules }}"
-#          - proto: tcp
-#            from_port: 22
-#            to_port: 22
-#            cidr_ip: 0.0.0.0/0
-#          - proto: tcp
-#            from_port: 80
-#            to_port: 80
-#            cidr_ip: 0.0.0.0/0
-#        rules_egress:
-#          - proto: all
-#            cidr_ip: 0.0.0.0/0
       tags: security
 
 # EC2 SETUP
@@ -104,6 +92,7 @@
         instance_tags:
                Name: backend
         vpc_subnet_id: "{{ create_vpc_subnet.subnet.id }}"
+        private_ip: "{{ backend_ip }}"
       register: ec2
       tags: launchvm
 
@@ -119,5 +108,6 @@
         instance_tags:
                Name: frontend
         vpc_subnet_id: "{{ create_vpc_subnet.subnet.id }}"
+        private_ip: "{{ fronted_ip }}"
       register: ec2
       tags: launchvm

@@ -5,14 +5,12 @@
 - hosts: ec2
   connection: local
   gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../vars/main.yaml"
+    - "{{ playbook_dir }}/../vars/{{ environment_target }}.yaml"
+
   tasks:
 
-    - name: Load main set of variables
-      include_vars:
-        file: "{{ playbook_dir }}/../vars/main.yaml"
-    - name: Get EC2 facts
-      ec2_instance_facts:
-      tags: ec2
 
     - debug: var="ec2_id"
 
@@ -30,11 +28,10 @@
 - hosts: localhost
   connection: local
   gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../vars/main.yaml"
+    - "{{ playbook_dir }}/../vars/{{ environment_target }}.yaml"
   tasks:
-
-    - name: Load main set of variables
-      include_vars:
-        file: "{{ playbook_dir }}/../vars/main.yaml"
 
     - name: Get VPC IDS
       ec2_vpc_net_facts:
