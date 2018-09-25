@@ -36,6 +36,8 @@ rules_egress:
 
 environment_target: dev
 
+backend_ip: "{{ groups['tag_Name_backend'][0] }}"
+
 backend_packages:
   - apache2
   - libapache2-mod-php5

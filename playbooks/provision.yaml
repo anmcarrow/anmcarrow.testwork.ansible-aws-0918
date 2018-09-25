@@ -5,14 +5,9 @@
 - hosts: tag_Name_backend
   gather_facts: true
   become: yes
-
-  pre_tasks:
-    - name: Load main set of variables
-      include_vars:
-        file: "{{ playbook_dir }}/../vars/main.yaml"
-    - name: Load environment-specific set of variables
-      include_vars:
-        file: "{{ playbook_dir }}/../vars/{{ environment_target }}.yaml"
+  vars_files:
+    - "{{ playbook_dir }}/../vars/main.yaml"
+    - "{{ playbook_dir }}/../vars/{{ environment_target }}.yaml"
 
   roles:
     - backend
@@ -20,17 +15,12 @@
 
 # FRONTEND SEETUP
 
-- hosts: tag_Name_fronted
+- hosts: tag_Name_frontend
   gather_facts: true
   become: yes
-
-  pre_tasks:
-    - name: Load main set of variables
-      include_vars:
-        file: "{{ playbook_dir }}/../vars/main.yaml"
-    - name: Load environment-specific set of variables
-      include_vars:
-        file: "{{ playbook_dir }}/../vars/{{ environment_target }}.yaml"
+  vars_files:
+    - "{{ playbook_dir }}/../vars/main.yaml"
+    - "{{ playbook_dir }}/../vars/{{ environment_target }}.yaml"
 
   roles:
     - frontend
@@ -38,15 +28,11 @@
 
 # FINAL CHECKS
 
-- hosts: tag_Name_backend
-  gather_facts: true
-
-  tasks:
+#- hosts: tag_Name_backend
+#  gather_facts: true
+#
+#  tasks:
 #    - name: Get EC2 facts
 #      ec2_instance_facts:
 #      delegate_to: tag_Name_backend
 #      tags: debug
-
-    - debug: var="ec2"
-#      delegate_to: tag_Name_backend
-      tags: debug

@@ -70,17 +70,6 @@
         vpc_id: "{{ vpc_id }}"
         region: "{{ region }}"
         rules: "{{ security_rules }}"
-#          - proto: tcp
-#            from_port: 22
-#            to_port: 22
-#            cidr_ip: 0.0.0.0/0
-#          - proto: tcp
-#            from_port: 80
-#            to_port: 80
-#            cidr_ip: 0.0.0.0/0
-#        rules_egress:
-#          - proto: all
-#            cidr_ip: 0.0.0.0/0
       tags: security
 
 # EC2 SETUP
