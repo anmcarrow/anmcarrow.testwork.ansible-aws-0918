@@ -28,11 +28,19 @@
 
 # FINAL CHECKS
 
-#- hosts: tag_Name_backend
-#  gather_facts: true
-#
-#  tasks:
-#    - name: Get EC2 facts
-#      ec2_instance_facts:
-#      delegate_to: tag_Name_backend
-#      tags: debug
+- hosts: localhost
+  gather_facts: false
+  vars_files:
+    - "{{ playbook_dir }}/../vars/main.yaml"
+
+  tasks:
+    - name: GYet marker file from the frontend
+      command: "curl -f http://{{ frontend_ip }}/env.html"
+      register: httpcheck
+      failed_when: httpcheck.rc != 0
+      tags: test
+
+    - name: Print environment type from the results of previous step and check the correct environment mark
+      debug: msg="{{ httpcheck.stdout }} "
+      failed_when: "httpcheck.stdout.find('environment_target') != -1"
+      tags: test
