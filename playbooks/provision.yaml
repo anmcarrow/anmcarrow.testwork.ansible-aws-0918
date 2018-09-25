@@ -15,7 +15,7 @@
 
 # FRONTEND SEETUP
 
-- hosts: tag_Name_fronted
+- hosts: tag_Name_frontend
   gather_facts: true
   become: yes
   vars_files:
@@ -28,27 +28,19 @@
 
 # FINAL CHECKS
 
-- hosts: tag_Name_backend
-  gather_facts: true
+- hosts: localhost
+  gather_facts: false
   vars_files:
     - "{{ playbook_dir }}/../vars/main.yaml"
-    - "{{ playbook_dir }}/../vars/{{ environment_target }}.yaml"
 
   tasks:
-    - name: Get EC2 facts
-      ec2_instance_facts:
-      delegate_to: localhost
-      connection: local
+    - name: GYet marker file from the frontend
+      command: "curl -f http://{{ frontend_ip }}/env.html"
+      register: httpcheck
+      failed_when: httpcheck.rc != 0
       tags: test
 
-    - name: Set backend_http_address variable
-      set_fact:
-        backend_http_address: "{{ ec2_ip_address }}"
+    - name: Print environment type from the results of previous step and check the correct environment mark
+      debug: msg="{{ httpcheck.stdout }} "
+      failed_when: "httpcheck.stdout.find('environment_target') != -1"
       tags: test
-
-      command: "curl -I http://{{ backend_http_address }}:{{ backend_http_port }}/{{ environment_target }}.html"
-      register: urlrequest
-      tags: test
-
-    - debug: msg="{{ urlrequest.stdout }}"
-      tags: debug

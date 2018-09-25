@@ -8,7 +8,6 @@ tcp_nodelay on;
 
 location / {
     proxy_pass http://{{ backend_ip }}:{{ backend_http_port }};
-    proxy_cache all;
     proxy_cache_valid 404 502 503 1m;
     proxy_cache_valid any 1h;
 }

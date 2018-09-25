@@ -1,5 +1,7 @@
 ---
 
+environment_target: dev
+
 #ansible_ssh_user: ec2-user
 ansible_ssh_user: admin
 
@@ -40,7 +42,8 @@ rules_egress:
   - proto: all
     cidr_ip: 0.0.0.0/0
 
-environment_target: dev
+frontend_ip: "{{ groups['tag_Name_frontend'][0] }}"
+backend_ip: "{{ groups['tag_Name_backend'][0] }}"
 
 backend_packages:
   - apache2
