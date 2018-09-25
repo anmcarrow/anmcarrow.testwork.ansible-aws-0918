@@ -15,10 +15,10 @@
     src: apache-default.conf.j2
     dest: /etc/apache2/sites-available/000-default.conf
 
-- name: Deploy virtualhost env-marker file
+- name: Deploy virtualhost marker file
   template:
     src: apache-marker.j2
-    dest: "/var/www/html/{{ environment_target }}.html"
+    dest: /var/www/html/env.html
 
 - name: Apply backend configurations
   service:
